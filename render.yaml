@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: pneumonia-detection
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app --workers 1 --timeout 120 --bind 0.0.0.0:$PORT
+    envVars:
+      - key: GOOGLE_API_KEY
+        sync: false
+      - key: MODEL_PATH
+        value: models/pneumonia_model_v2.h5
+      - key: FLASK_ENV
+        value: production
+    disk:
+      name: model-storage
+      mountPath: /opt/render/project/src/models
+      sizeGB: 2

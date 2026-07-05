@@ -1,0 +1,1175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>PneumoScan — AI Chest X-Ray Analysis</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Fraunces:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+
+<style>
+*,*::before,*::after{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+}
+
+:root{
+  --bg:#f0f4ff;
+  --bg2:#ffffff;
+  --bg3:#e8eef8;
+  --border:rgba(99,120,180,0.15);
+  --border2:rgba(99,120,180,0.28);
+  --text:#1a2035;
+  --muted:#6b7a99;
+  --accent:#4f6ef7;
+  --accent-light:#eef1ff;
+  --danger:#e53e3e;
+  --danger-bg:#fff5f5;
+  --danger2:#fc8181;
+  --success:#1a9e5c;
+  --success-bg:#f0fff8;
+  --warn:#d97706;
+  --warn-bg:#fffbeb;
+  --r:18px;
+  --shadow:0 4px 24px rgba(79,110,247,0.10);
+  --shadow2:0 2px 8px rgba(0,0,0,0.06);
+}
+
+body{
+  font-family:'Plus Jakarta Sans',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  line-height:1.6;
+}
+
+header{
+  padding:0 2rem;
+  height:62px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  background:rgba(240,244,255,0.88);
+  backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--border);
+  position:sticky;
+  top:0;
+  z-index:100;
+}
+
+.logo{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  text-decoration:none;
+  color:var(--text);
+}
+
+.logo-icon{
+  width:34px;
+  height:34px;
+  border-radius:10px;
+  background:var(--accent);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  box-shadow:0 2px 10px rgba(79,110,247,0.35);
+}
+
+.logo-icon svg{
+  color:#fff;
+}
+
+.logo-name{
+  font-family:'Fraunces',serif;
+  font-size:1.25rem;
+  font-weight:600;
+  letter-spacing:-0.02em;
+}
+
+.header-pill{
+  font-size:12px;
+  font-weight:600;
+  letter-spacing:0.04em;
+  padding:5px 14px;
+  border-radius:20px;
+  background:var(--accent-light);
+  color:var(--accent);
+  border:1px solid rgba(79,110,247,0.2);
+}
+
+.page{
+  max-width:720px;
+  margin:0 auto;
+  padding:3rem 1.5rem 5rem;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:1.75rem;
+}
+
+.hero{
+  text-align:center;
+  max-width:560px;
+}
+
+.hero-chip{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  font-size:12px;
+  font-weight:600;
+  letter-spacing:0.06em;
+  text-transform:uppercase;
+  color:var(--accent);
+  background:var(--accent-light);
+  padding:5px 14px;
+  border-radius:20px;
+  border:1px solid rgba(79,110,247,0.2);
+  margin-bottom:1.2rem;
+}
+
+.hero-chip span{
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  background:var(--accent);
+  animation:blink 1.8s infinite;
+}
+
+@keyframes blink{
+  0%,100%{opacity:1}
+  50%{opacity:0.3}
+}
+
+.hero h1{
+  font-family:'Fraunces',serif;
+  font-size:clamp(2rem,5vw,3rem);
+  font-weight:600;
+  line-height:1.18;
+  color:var(--text);
+  margin-bottom:1rem;
+  letter-spacing:-0.03em;
+}
+
+.hero h1 em{
+  color:var(--accent);
+  font-style:italic;
+}
+
+.hero p{
+  color:var(--muted);
+  font-size:1rem;
+  line-height:1.7;
+  max-width:460px;
+  margin:0 auto;
+}
+
+.steps{
+  display:flex;
+  gap:0.5rem;
+  align-items:center;
+  font-size:13px;
+  color:var(--muted);
+  font-weight:500;
+}
+
+.step{
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+
+.step-num{
+  width:22px;
+  height:22px;
+  border-radius:50%;
+  background:var(--accent);
+  color:#fff;
+  font-size:11px;
+  font-weight:700;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-shrink:0;
+}
+
+.step-div{
+  width:28px;
+  height:1px;
+  background:var(--border2);
+}
+
+.main-card{
+  width:100%;
+  background:var(--bg2);
+  border-radius:24px;
+  border:1px solid var(--border);
+  box-shadow:var(--shadow);
+  overflow:hidden;
+}
+
+.upload-section{
+  padding:2rem;
+}
+
+.upload-zone{
+  border:2px dashed var(--border2);
+  border-radius:16px;
+  padding:3rem 2rem;
+  text-align:center;
+  cursor:pointer;
+  transition:all 0.22s;
+  background:var(--bg);
+  position:relative;
+}
+
+.upload-zone:hover,
+.upload-zone.drag-over{
+  border-color:var(--accent);
+  background:var(--accent-light);
+  transform:translateY(-2px);
+  box-shadow:0 8px 28px rgba(79,110,247,0.12);
+}
+
+.upload-icon-wrap{
+  width:72px;
+  height:72px;
+  border-radius:20px;
+  background:var(--accent-light);
+  border:1px solid rgba(79,110,247,0.2);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin:0 auto 1.25rem;
+  transition:transform 0.2s;
+}
+
+.upload-zone:hover .upload-icon-wrap{
+  transform:scale(1.07);
+}
+
+.upload-icon-wrap svg{
+  color:var(--accent);
+}
+
+.upload-zone h3{
+  font-size:16px;
+  font-weight:600;
+  margin-bottom:0.4rem;
+}
+
+.upload-zone p{
+  font-size:14px;
+  color:var(--muted);
+}
+
+.or{
+  display:inline-block;
+  margin:0.9rem 0;
+  font-size:12px;
+  color:var(--muted);
+}
+
+.browse-btn{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  background:var(--accent);
+  color:#fff;
+  border:none;
+  border-radius:10px;
+  padding:0.55rem 1.3rem;
+  font-size:13px;
+  font-weight:600;
+  font-family:'Plus Jakarta Sans',sans-serif;
+  cursor:pointer;
+  transition:all 0.15s;
+  box-shadow:0 2px 10px rgba(79,110,247,0.3);
+}
+
+.browse-btn:hover{
+  background:#3d5ce6;
+  transform:translateY(-1px);
+}
+
+.formats{
+  margin-top:1rem;
+  font-size:11px;
+  color:var(--muted);
+  letter-spacing:0.04em;
+}
+
+#file-input{
+  display:none;
+}
+
+#preview-section{
+  display:none;
+}
+
+.preview-wrap{
+  padding:0 2rem 1.5rem;
+}
+
+.preview-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:0.75rem;
+}
+
+.preview-header span{
+  font-size:13px;
+  font-weight:600;
+  color:var(--muted);
+  text-transform:uppercase;
+  letter-spacing:0.05em;
+}
+
+.remove-btn{
+  font-size:12px;
+  color:var(--muted);
+  background:var(--bg3);
+  border:1px solid var(--border2);
+  border-radius:8px;
+  padding:4px 12px;
+  cursor:pointer;
+  font-family:inherit;
+  transition:all 0.15s;
+}
+
+.remove-btn:hover{
+  color:var(--danger);
+  border-color:var(--danger2);
+}
+
+#preview-img{
+  width:100%;
+  border-radius:12px;
+  object-fit:contain;
+  max-height:300px;
+  background:var(--bg3);
+}
+
+.analyze-btn{
+  width:100%;
+  margin-top:1rem;
+  background:var(--accent);
+  color:#fff;
+  border:none;
+  border-radius:12px;
+  padding:0.85rem;
+  font-size:15px;
+  font-weight:600;
+  font-family:'Plus Jakarta Sans',sans-serif;
+  cursor:pointer;
+  transition:all 0.18s;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  box-shadow:0 4px 16px rgba(79,110,247,0.3);
+}
+
+.analyze-btn:hover{
+  background:#3d5ce6;
+  transform:translateY(-1px);
+  box-shadow:0 6px 22px rgba(79,110,247,0.38);
+}
+
+.analyze-btn:disabled{
+  opacity:0.55;
+  cursor:not-allowed;
+  transform:none;
+  box-shadow:none;
+}
+
+.divider{
+  height:1px;
+  background:var(--border);
+}
+
+#result-section{
+  display:none;
+}
+
+.result-inner{
+  padding:1.75rem 2rem 2rem;
+}
+
+.result-banner{
+  border-radius:14px;
+  padding:1.25rem 1.5rem;
+  display:flex;
+  align-items:center;
+  gap:1rem;
+  margin-bottom:1.5rem;
+}
+
+.result-banner.danger{
+  background:var(--danger-bg);
+  border:1px solid rgba(229,62,62,0.2);
+}
+
+.result-banner.success{
+  background:var(--success-bg);
+  border:1px solid rgba(26,158,92,0.2);
+}
+
+.result-banner.warning{
+  background:var(--warn-bg);
+  border:1px solid rgba(217,119,6,0.22);
+}
+
+.result-emoji{
+  font-size:2.5rem;
+  line-height:1;
+}
+
+.result-title{
+  font-family:'Fraunces',serif;
+  font-size:1.5rem;
+  font-weight:600;
+  line-height:1.2;
+}
+
+.result-title.danger{
+  color:var(--danger);
+}
+
+.result-title.success{
+  color:var(--success);
+}
+
+.result-title.warning{
+  color:var(--warn);
+}
+
+.result-sub{
+  font-size:13px;
+  color:var(--muted);
+  margin-top:3px;
+}
+
+.conf-label-row{
+  display:flex;
+  justify-content:space-between;
+  margin-bottom:6px;
+}
+
+.conf-label-row span{
+  font-size:13px;
+  color:var(--muted);
+  font-weight:500;
+}
+
+.conf-label-row strong{
+  font-size:14px;
+  font-weight:700;
+}
+
+.conf-track{
+  height:10px;
+  background:var(--bg3);
+  border-radius:99px;
+  overflow:hidden;
+  margin-bottom:1.5rem;
+}
+
+.conf-fill{
+  height:100%;
+  border-radius:99px;
+  transition:width 0.9s cubic-bezier(0.34,1.56,0.64,1);
+}
+
+.conf-fill.danger{
+  background:linear-gradient(90deg,#fc8181,#e53e3e);
+}
+
+.conf-fill.success{
+  background:linear-gradient(90deg,#68d391,#1a9e5c);
+}
+
+.conf-fill.warning{
+  background:linear-gradient(90deg,#fbbf24,#d97706);
+}
+
+.stats{
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:0.75rem;
+  margin-bottom:1.5rem;
+}
+
+.stat{
+  background:var(--bg3);
+  border-radius:12px;
+  padding:0.9rem 1rem;
+  text-align:center;
+}
+
+.stat-label{
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:0.07em;
+  color:var(--muted);
+  margin-bottom:4px;
+  font-weight:600;
+}
+
+.stat-val{
+  font-size:1.1rem;
+  font-weight:700;
+  color:var(--text);
+}
+
+/* ROI section */
+.roi-title{
+  font-size:13px;
+  font-weight:600;
+  text-transform:uppercase;
+  letter-spacing:0.06em;
+  color:var(--muted);
+  margin-bottom:0.75rem;
+  display:flex;
+  align-items:center;
+  gap:7px;
+}
+
+.roi-title span{
+  display:inline-block;
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:linear-gradient(135deg,#3b82f6,#ef4444);
+}
+
+#roi-img{
+  width:100%;
+  border-radius:12px;
+  display:block;
+  background:var(--bg3);
+  max-height:420px;
+  object-fit:contain;
+}
+
+.roi-legend{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-top:0.65rem;
+  font-size:12px;
+  color:var(--muted);
+  flex-wrap:wrap;
+}
+
+.error-box{
+  text-align:center;
+  padding:2rem;
+  background:var(--danger-bg);
+  border-radius:14px;
+  border:1px solid rgba(229,62,62,0.2);
+}
+
+.error-box .err-icon{
+  font-size:2.5rem;
+  margin-bottom:0.75rem;
+}
+
+.error-box h3{
+  color:var(--danger);
+  font-size:1.1rem;
+  font-weight:700;
+  margin-bottom:0.5rem;
+}
+
+.error-box p{
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.6;
+  max-width:320px;
+  margin:0 auto 1.25rem;
+}
+
+.retry-btn{
+  background:var(--bg2);
+  color:var(--text);
+  border:1px solid var(--border2);
+  border-radius:10px;
+  padding:0.55rem 1.2rem;
+  font-size:13px;
+  font-weight:600;
+  font-family:inherit;
+  cursor:pointer;
+  transition:all 0.15s;
+}
+
+.retry-btn:hover{
+  background:var(--bg3);
+}
+
+.chat-section{
+  background:var(--bg2);
+  border-radius:24px;
+  border:1px solid var(--border);
+  box-shadow:var(--shadow2);
+  padding:1.75rem 2rem;
+  width:100%;
+}
+
+.chat-heading{
+  font-size:13px;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:0.07em;
+  color:var(--muted);
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-bottom:1rem;
+}
+
+.chat-heading svg{
+  color:var(--accent);
+}
+
+.chat-msgs{
+  max-height:260px;
+  overflow-y:auto;
+  display:flex;
+  flex-direction:column;
+  gap:0.65rem;
+  margin-bottom:1rem;
+  padding-right:4px;
+  scrollbar-width:thin;
+  scrollbar-color:var(--border2) transparent;
+}
+
+.msg{
+  padding:0.7rem 1rem;
+  border-radius:12px;
+  font-size:14px;
+  line-height:1.55;
+  max-width:88%;
+}
+
+.msg.user{
+  background:var(--accent);
+  color:#fff;
+  align-self:flex-end;
+  border-bottom-right-radius:4px;
+}
+
+.msg.bot{
+  background:var(--bg3);
+  color:var(--text);
+  align-self:flex-start;
+  border-bottom-left-radius:4px;
+  border:1px solid var(--border);
+}
+
+.msg.typing{
+  color:var(--muted);
+  font-style:italic;
+}
+
+.chat-input-row{
+  display:flex;
+  gap:0.5rem;
+}
+
+.chat-input-row input{
+  flex:1;
+  background:var(--bg3);
+  border:1.5px solid var(--border2);
+  border-radius:12px;
+  padding:0.65rem 1rem;
+  color:var(--text);
+  font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:14px;
+  outline:none;
+  transition:border-color 0.2s;
+}
+
+.chat-input-row input:focus{
+  border-color:var(--accent);
+}
+
+.chat-input-row input::placeholder{
+  color:var(--muted);
+}
+
+.send-btn{
+  background:var(--accent);
+  border:none;
+  border-radius:12px;
+  padding:0 1.1rem;
+  color:#fff;
+  cursor:pointer;
+  font-size:18px;
+  transition:background 0.15s;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.send-btn:hover{
+  background:#3d5ce6;
+}
+
+.disclaimer{
+  width:100%;
+  background:var(--warn-bg);
+  border:1px solid rgba(217,119,6,0.22);
+  border-radius:14px;
+  padding:0.9rem 1.2rem;
+  font-size:13px;
+  color:#92600a;
+  display:flex;
+  gap:10px;
+  align-items:flex-start;
+  line-height:1.55;
+}
+
+footer{
+  text-align:center;
+  padding:1.5rem;
+  color:var(--muted);
+  font-size:12px;
+  border-top:1px solid var(--border);
+  background:var(--bg2);
+}
+
+.spinner{
+  width:17px;
+  height:17px;
+  border:2.5px solid rgba(255,255,255,0.3);
+  border-top-color:#fff;
+  border-radius:50%;
+  animation:spin 0.7s linear infinite;
+  display:inline-block;
+  flex-shrink:0;
+}
+
+@keyframes spin{
+  to{
+    transform:rotate(360deg);
+  }
+}
+
+.fade-in{
+  animation:fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn{
+  from{
+    opacity:0;
+    transform:translateY(10px);
+  }
+  to{
+    opacity:1;
+    transform:none;
+  }
+}
+
+@media(max-width:520px){
+  .page{
+    padding:1.5rem 1rem 4rem;
+  }
+
+  .stats{
+    grid-template-columns:1fr;
+  }
+
+  header{
+    padding:0 1rem;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <a class="logo" href="#">
+    <div class="logo-icon">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+        <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+      </svg>
+    </div>
+    <span class="logo-name">PneumoScan</span>
+  </a>
+  <span class="header-pill">✦ AI-Powered</span>
+</header>
+
+<div class="page">
+
+  <div class="hero">
+    <div class="hero-chip"><span></span> Chest X-Ray Analysis</div>
+    <h1>Detect Pneumonia<br><em>Instantly</em></h1>
+    <p>Upload a chest X-ray and our AI model detects pneumonia in seconds — with ROI highlighting shown only when pneumonia is detected.</p>
+  </div>
+
+  <div class="steps">
+    <div class="step"><div class="step-num">1</div> Upload X-Ray</div>
+    <div class="step-div"></div>
+    <div class="step"><div class="step-num">2</div> AI Validates</div>
+    <div class="step-div"></div>
+    <div class="step"><div class="step-num">3</div> Get Results</div>
+  </div>
+
+  <div class="main-card">
+    <div class="upload-section">
+      <div class="upload-zone" id="upload-zone" onclick="document.getElementById('file-input').click()">
+        <div class="upload-icon-wrap">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <rect x="3" y="3" width="18" height="18" rx="3"/>
+            <circle cx="8.5" cy="8.5" r="1.5"/>
+            <polyline points="21 15 16 10 5 21"/>
+          </svg>
+        </div>
+        <h3>Drop your chest X-ray here</h3>
+        <p>Only chest / thorax X-rays are accepted</p>
+        <div class="or">— or —</div><br>
+        <button class="browse-btn" onclick="event.stopPropagation();document.getElementById('file-input').click()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="17 8 12 3 7 8"/>
+            <line x1="12" y1="3" x2="12" y2="15"/>
+          </svg>
+          Browse Files
+        </button>
+        <div class="formats">JPG · JPEG · PNG · Max 16MB</div>
+      </div>
+
+      <input type="file" id="file-input" accept=".jpg,.jpeg,.png,.bmp,.webp"/>
+    </div>
+
+    <div id="preview-section">
+      <div class="divider"></div>
+      <div class="preview-wrap">
+        <div class="preview-header">
+          <span>Preview</span>
+          <button class="remove-btn" onclick="resetAll()">✕ Remove</button>
+        </div>
+        <img id="preview-img" src="" alt="X-Ray Preview"/>
+        <button class="analyze-btn" id="analyze-btn" onclick="analyze()">
+          <span id="btn-text">Analyze X-Ray</span>
+        </button>
+      </div>
+    </div>
+
+    <div id="result-section">
+      <div class="divider"></div>
+      <div class="result-inner" id="result-inner"></div>
+    </div>
+  </div>
+
+  <div class="chat-section">
+    <div class="chat-heading">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+      </svg>
+      Ask Gemini AI
+    </div>
+
+    <div class="chat-msgs" id="chat-msgs">
+      <div class="msg bot">👋 Hi! I'm your AI assistant. Upload a chest X-ray and I'll help explain the results, symptoms, or treatment options!</div>
+    </div>
+
+    <div class="chat-input-row">
+      <input type="text" id="chat-input" placeholder="Ask about pneumonia, symptoms, treatment..." onkeydown="if(event.key==='Enter')sendChat()"/>
+      <button class="send-btn" onclick="sendChat()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <line x1="22" y1="2" x2="11" y2="13"/>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="disclaimer">
+    <span style="font-size:18px;flex-shrink:0;">⚠️</span>
+    <span><strong>Medical Disclaimer:</strong> PneumoScan is for educational and research purposes only. It is not a substitute for professional medical diagnosis. Always consult a qualified physician or radiologist.</span>
+  </div>
+
+</div>
+
+<footer>PneumoScan · EfficientNetB3 + ROI · Gemini AI</footer>
+
+<script>
+const API = window.location.origin;
+let currentFile = null;
+
+const zone = document.getElementById('upload-zone');
+
+zone.addEventListener('dragover', e => {
+  e.preventDefault();
+  zone.classList.add('drag-over');
+});
+
+zone.addEventListener('dragleave', () => {
+  zone.classList.remove('drag-over');
+});
+
+zone.addEventListener('drop', e => {
+  e.preventDefault();
+  zone.classList.remove('drag-over');
+
+  if(e.dataTransfer.files[0]){
+    handleFile(e.dataTransfer.files[0]);
+  }
+});
+
+document.getElementById('file-input').addEventListener('change', e => {
+  if(e.target.files[0]){
+    handleFile(e.target.files[0]);
+  }
+});
+
+function handleFile(file){
+  const allowedTypes = [
+    'image/jpeg',
+    'image/jpg',
+    'image/png',
+    'image/bmp',
+    'image/webp'
+  ];
+
+  if(!allowedTypes.includes(file.type)){
+    alert('Please upload a valid image file: JPG, JPEG, PNG, BMP, or WEBP.');
+    return;
+  }
+
+  currentFile = file;
+
+  const reader = new FileReader();
+
+  reader.onload = e => {
+    document.getElementById('preview-img').src = e.target.result;
+    document.getElementById('preview-section').style.display = 'block';
+    document.getElementById('upload-zone').style.display = 'none';
+    document.getElementById('result-section').style.display = 'none';
+  };
+
+  reader.readAsDataURL(file);
+}
+
+function resetAll(){
+  currentFile = null;
+
+  document.getElementById('file-input').value = '';
+  document.getElementById('preview-section').style.display = 'none';
+  document.getElementById('result-section').style.display = 'none';
+  document.getElementById('upload-zone').style.display = 'block';
+  document.getElementById('result-inner').innerHTML = '';
+  document.getElementById('analyze-btn').disabled = false;
+  document.getElementById('btn-text').textContent = 'Analyze X-Ray';
+}
+
+async function analyze(){
+  if(!currentFile)return;
+
+  const btn = document.getElementById('analyze-btn');
+  const btnText = document.getElementById('btn-text');
+
+  btn.disabled = true;
+  btnText.innerHTML = '<span class="spinner"></span> Analyzing...';
+
+  try{
+    const fd = new FormData();
+    fd.append('file', currentFile);
+
+    const res = await fetch(`${API}/predict`, {
+      method:'POST',
+      body:fd
+    });
+
+    const data = await res.json();
+
+    console.log("Backend response:", data);
+
+    if(data.error){
+      showError(data.error);
+    }else{
+      showResult(data);
+    }
+
+  }catch(err){
+    showError('Connection error. Make sure the Flask server is running.');
+    console.error(err);
+  }finally{
+    btn.disabled = false;
+    btnText.textContent = 'Analyze Again';
+  }
+}
+
+function showError(msg){
+  const sec = document.getElementById('result-section');
+
+  sec.style.display = 'block';
+  sec.classList.add('fade-in');
+
+  document.getElementById('result-inner').innerHTML = `
+    <div class="error-box">
+      <div class="err-icon">🚫</div>
+      <h3>Invalid Image</h3>
+      <p>${msg}</p>
+      <button class="retry-btn" onclick="resetAll()">↩ Try Another Image</button>
+    </div>`;
+}
+
+function showResult(data){
+  const sec = document.getElementById('result-section');
+
+  sec.style.display = 'block';
+  sec.classList.add('fade-in');
+
+  const prediction = data.prediction;
+  const isPneu = prediction === 'Pneumonia';
+  const isNormal = prediction === 'Normal';
+  const isUncertain = prediction === 'Uncertain';
+
+  let cls = 'success';
+  let emoji = '✅';
+  let title = `${prediction} Result`;
+  let sub = 'Analysis completed.';
+
+  if(isPneu){
+    cls = 'danger';
+    emoji = '🫁';
+    title = 'Pneumonia Detected';
+    sub = 'Signs of pneumonia found. Please consult a doctor.';
+  }else if(isNormal){
+    cls = 'success';
+    emoji = '✅';
+    title = 'Normal Result';
+    sub = 'No pneumonia indicators detected in this X-ray.';
+  }else if(isUncertain){
+  cls = 'warning';
+  emoji = '⚠️';
+  title = 'Possible Pneumonia / Needs Review';
+  sub = data.message || 'The model confidence is low or the X-ray is not clear enough. Please upload a clearer chest X-ray or consult a doctor.';
+}
+
+  const pct = data.confidence ?? 0;
+
+  let roiHTML = '';
+
+ if(data.show_roi === true && data.roi_image){
+  roiHTML = `
+    <div class="roi-title"><span></span> ROI Region — suspected pneumonia area</div>
+    <img id="roi-img" src="${data.roi_image}?t=${Date.now()}" alt="ROI Region"/>
+    <div class="roi-legend">
+      <span>ROI is shown only when Pneumonia is detected.</span>
+    </div>`;
+}
+
+  document.getElementById('result-inner').innerHTML = `
+    <div class="result-banner ${cls} fade-in">
+      <div class="result-emoji">${emoji}</div>
+      <div>
+        <div class="result-title ${cls}">${title}</div>
+        <div class="result-sub">${sub}</div>
+      </div>
+    </div>
+
+    <div class="conf-label-row">
+      <span>Model Confidence</span>
+      <strong>${pct}%</strong>
+    </div>
+
+    <div class="conf-track">
+      <div class="conf-fill ${cls}" id="conf-bar" style="width:0%"></div>
+    </div>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-label">Result</div>
+        <div class="stat-val" style="color:${isPneu?'var(--danger)':isUncertain?'var(--warn)':'var(--success)'}">${prediction}</div>
+      </div>
+
+      <div class="stat">
+        <div class="stat-label">Raw Score</div>
+        <div class="stat-val">${data.raw_score ?? '—'}</div>
+      </div>
+
+      <div class="stat">
+        <div class="stat-label">Threshold</div>
+        <div class="stat-val">Above ${data.threshold ?? 0.65}</div>
+      </div>
+    </div>
+
+    ${roiHTML}`;
+
+  setTimeout(() => {
+    const b = document.getElementById('conf-bar');
+    if(b){
+      b.style.width = pct + '%';
+    }
+  }, 80);
+
+  sendChatMsg(
+    `Chest X-ray analyzed. Result: ${data.prediction} with ${data.confidence}% confidence. Pneumonia raw score: ${data.raw_score}. Threshold: ${data.threshold}. Briefly explain what this means and recommended next steps.`,
+    true
+  );
+}
+
+function sendChat(){
+  const input = document.getElementById('chat-input');
+  const q = input.value.trim();
+
+  if(!q)return;
+
+  input.value = '';
+  sendChatMsg(q,false);
+}
+
+async function sendChatMsg(question,isAuto){
+  const msgs = document.getElementById('chat-msgs');
+
+  if(!isAuto){
+    const um = document.createElement('div');
+    um.className = 'msg user';
+    um.textContent = question;
+    msgs.appendChild(um);
+  }
+
+  const typing = document.createElement('div');
+  typing.className = 'msg bot typing';
+  typing.textContent = 'Gemini is thinking…';
+  msgs.appendChild(typing);
+
+  msgs.scrollTop = msgs.scrollHeight;
+
+  try{
+    const fd = new FormData();
+    fd.append('question', question);
+
+    if(currentFile && !isAuto){
+      fd.append('file', currentFile);
+    }
+
+    const res = await fetch(`${API}/gemini-chat`, {
+      method:'POST',
+      body:fd
+    });
+
+    const data = await res.json();
+
+    typing.className = 'msg bot fade-in';
+    typing.style.fontStyle = 'normal';
+    typing.textContent = data.reply || 'No response.';
+
+  }catch(e){
+    typing.textContent = 'Could not reach Gemini. Check your API key.';
+  }
+
+  msgs.scrollTop = msgs.scrollHeight;
+}
+</script>
+
+</body>
+</html>
