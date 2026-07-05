@@ -1,5 +1,5 @@
 PneumoScan — Pneumonia Detection System
-Project Structure
+#---------Project Structure-----------#
 PNEUMONIA_DSP/
 ├── app.py                          # Flask backend and prediction pipeline
 ├── train.py                        # Deep Learning training script
