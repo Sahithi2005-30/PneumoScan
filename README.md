@@ -1,125 +1,177 @@
-PneumoScan — Pneumonia Detection System
-#---------Project Structure-----------#
-PNEUMONIA_DSP/
-├── app.py                          # Flask backend and prediction pipeline
-├── train.py                        # Deep Learning training script
-├── requirements.txt               # Python dependencies
+PneumoScan-Pneumonia Detection System
+Overview
+The PneumoScan is a deep learning-based healthcare application that automatically detects pneumonia from chest X-ray images. The system classifies uploaded images into three categories:
+
+Normal
+Pneumonia
+Invalid Image (non-X-ray images)
+
+The application provides real-time predictions through a Flask web interface and includes an AI-powered healthcare chatbot using the Gemini API to answer pneumonia-related questions and provide general medical guidance.
+
+Features
+Detects Pneumonia from chest X-ray images.
+Classifies images into:
+Normal
+Pneumonia
+Invalid Image
+Rejects non-X-ray images such as:
+QR codes
+Random photographs
+Ultrasound images
+Region of Interest (ROI) highlighting for suspected pneumonia regions.
+Real-time prediction through a Flask web application.
+Gemini AI healthcare chatbot for medical explanations and guidance.
+User-friendly web interface.
+Technologies Used
+Programming Language
+Python
+Deep Learning
+TensorFlow
+Keras
+EfficientNetB3 (Transfer Learning)
+Backend
+Flask
+Frontend
+HTML
+CSS
+JavaScript
+Image Processing
+NumPy
+Pillow (PIL)
+AI Integration
+Gemini API
+Project Structure
+Pneumonia-Detection-System/
+│
+├── app.py                     # Flask application
+├── model/
+│   └── pneumonia_model.keras  # Trained EfficientNet model
+│
 ├── templates/
-│   └── index.html                 # Frontend UI
+│   ├── index.html
+│   └── result.html
+│
 ├── static/
-│   └── uploads/                   # Uploaded and ROI images
-├── models/
-│   ├── pneumonia_3class_model.h5
-│   └── class_indices.txt
-└── chest_xray/
-    ├── train/
-    ├── val/
-    └── test/
+│   ├── css/
+│   ├── js/
+│   └── uploads/
+│
+├── dataset/
+│   ├── train/
+│   ├── validation/
+│   └── test/
+│
+├── utils/
+│   ├── preprocessing.py
+│   ├── prediction.py
+│   └── roi.py
+│
+├── requirements.txt
+└── README.md
+Dataset
 
-#------Project Overview-----#
-PneumoScan is a Deep Learning-based healthcare application developed to classify chest X-ray images into Normal, Pneumonia, and Invalid Image categories. The system performs image preprocessing, model prediction, confidence-based decision handling, ROI visualization, and healthcare assistance through a Gemini 2.0-powered chatbot.
+The model was trained using a chest X-ray dataset containing three classes:
 
-#------Features-----#
--Deep Learning Model (train.py)
--Developed using EfficientNetB0/EfficientNetB3
--Supports 3-class classification:
-   Normal  Pneumonia  Invalid Image
--Image preprocessing and augmentation
--Class balancing using class weights
--Two-phase transfer learning and fine-tuning
--Confidence-based prediction handling
--Validation and testing pipeline
+Normal
+Pneumonia
+Invalid
 
-#----Backend (app.py)-----#
--Flask-based prediction API
--Real-time chest X-ray classification
--Confidence-based decision handling
--ROI visualization for pneumonia cases
--Invalid image detection
--Rule-based validation for:
-    QR codes   Documents    Random images   Non-chest X-ray inputs
--Gemini 2.0 healthcare chatbot integration
+The Invalid class was created by adding non-chest-X-ray images so that the system rejects incorrect inputs instead of producing misleading predictions.
 
-#-----Frontend (templates/index.html)-----#
--Drag-and-drop image upload
--Responsive user interface
--Real-time prediction results
--Confidence score visualization
--ROI image display for pneumonia cases
--Healthcare chatbot support
--Mobile-friendly design
+Data Preprocessing
 
-#------Gemini Healthcare Chatbot------#
--The application integrates Google Gemini 2.0 to provide:
--Medical awareness information
--Pneumonia-related explanations
--Symptoms and precaution guidance
--Prediction explanations
--General healthcare assistance
+Before training, each image undergoes the following preprocessing steps:
 
-Note: This project uses the free version of Google Gemini API. Due to free-tier usage limitations, the chatbot can answer only a limited number of questions. Once the free quota is exhausted, the chatbot functionality becomes temporarily unavailable until the quota resets.
+Image resizing (224 × 224 pixels)
+Image normalization
+Conversion to NumPy arrays
+Data augmentation:
+Rotation
+Zoom
+Horizontal flipping
+Brightness adjustment
+Model Architecture
 
-#-------Technologies Used------#
--Python
--TensorFlow
--Keras
--EfficientNetB0 / EfficientNetB3
--Flask
--NumPy
--Pillow (PIL)
--HTML
--CSS
--JavaScript
--Google Gemini API
+The system uses EfficientNetB3, a pretrained Convolutional Neural Network (CNN), with transfer learning.
 
-#-------Local Development--------#
+Training includes:
+
+Transfer learning
+Fine-tuning
+Dense classification layers
+Dropout for regularization
+System Workflow
+User uploads a chest X-ray image.
+Flask receives the uploaded image.
+The image is preprocessed.
+The EfficientNetB3 model predicts one of:
+Normal
+Pneumonia
+Invalid
+ROI highlighting identifies the suspected pneumonia region.
+The prediction is displayed on the web interface.
+Users can interact with the Gemini AI chatbot for general healthcare guidance.
+Invalid Image Detection
+
+One of the key features of this project is invalid image detection.
+
+Instead of attempting to classify unrelated images, the model identifies them as Invalid Image, ensuring that only chest X-rays are analyzed.
+
+Examples of rejected images include:
+
+QR codes
+Mobile phone photographs
+Landscape images
+Ultrasound scans
+Other non-X-ray images
+ROI Highlighting
+
+After prediction, the application highlights the suspected Region of Interest (ROI) within the lungs to improve interpretability and help users understand where abnormalities may be present.
+
+Gemini AI Healthcare Chatbot
+
+The project integrates the Gemini API to provide:
+
+General information about pneumonia
+Symptoms
+Preventive measures
+Basic healthcare guidance
+Answers to user queries
+
+Note: The chatbot does not perform diagnosis. All image predictions are generated by the trained deep learning model.
+
+Installation
+
+Clone the repository:
+
+git clone https://github.com/your-username/Pneumonia-Detection-System.git
+cd Pneumonia-Detection-System
+
+Install dependencies:
+
 pip install -r requirements.txt
+
+Run the Flask application:
+
 python app.py
-Visit: http://localhost:5000
-Set your Gemini API key:
-export GOOGLE_API_KEY="your-api-key"
 
-#------Model Training----#
-Run:
-python train.py
-Dataset structure:
-chest_xray/
-├── train/
-│   ├── INVALID IMAGES/
-│   ├── NORMAL/
-│   └── PNEUMONIA/
-├── val/
-│   ├── INVALID IMAGES/
-│   ├── NORMAL/
-│   └── PNEUMONIA/
-└── test/
-    ├── INVALID IMAGES/
-    ├── NORMAL/
-    └── PNEUMONIA/
+Open your browser:
 
-#--------Project Workflow----------#
-Upload Image
-        ↓
-Image Validation
-        ↓
-Image Preprocessing
-        ↓
-Deep Learning Prediction
-        ↓
-Normal / Pneumonia / Invalid
-        ↓
-Confidence Score Generation
-        ↓
-ROI Visualization
-        ↓
-Gemini Healthcare Assistance
+http://127.0.0.1:5000
+Future Enhancements
+Support detection of multiple lung diseases.
+Improve model accuracy using larger datasets.
+Deploy the application to a cloud platform.
+Develop Android and iOS applications.
+Integrate with hospital information systems.
+Enhance explainability using advanced visualization techniques.
+Authors
 
-#-------Future Improvements-----------#
-Improve invalid image detection using larger datasets
-Add ultrasound, CT, MRI, and document datasets
-Improve confidence calibration
-Deploy to cloud platforms
-Enhance ROI localization accuracy
+Sahithi Kondeti
 
-Disclaimer:
-This project is developed for educational and research purposes only and is not intended to replace professional medical diagnosis. Users should consult qualified healthcare professionals for medical decisions.
+Integrated M.Tech – Software Engineering
+VIT-AP University
+
+License
+
+This project is intended for educational and research purposes. It should not be used as a substitute for professional medical diagnosis.
