@@ -1,158 +1,86 @@
-PneumoScan-Pneumonia Detection System
+# 🫁 PnemoScan – Pneumonia Detection System
 
-Overview
-The PneumoScan is a deep learning-based healthcare application that automatically detects pneumonia from chest X-ray images. The system classifies uploaded images into three categories:
--Normal
--Pneumonia
--Invalid Image (non-X-ray images)
-The application provides real-time predictions through a Flask web interface and includes an AI-powered healthcare chatbot using the Gemini API to answer pneumonia-related questions and provide general medical guidance.
-____________________________________________________________________________________________________________________________________________________________________________
-Features
--Detects Pneumonia from chest X-ray images.
--Classifies images into:
-  -Normal
-  -Pneumonia
-  -Invalid Image
--Rejects non-X-ray images such as:
--QR codes
--Random photographs
--Ultrasound images
--Region of Interest (ROI) highlighting for suspected pneumonia regions.
--Real-time prediction through a Flask web application.
--Gemini AI healthcare chatbot for medical explanations and guidance.
--User-friendly web interface.
-____________________________________________________________________________________________________________________________________________________________________________
-Technologies Used
-**Programming Language**
--Python
-**Deep Learning**
--TensorFlow
--Keras
--EfficientNetB3 (Transfer Learning)
-**Backend**
--Flask
-Frontend
--HTML
--CSS
-JavaScript
-**Image Processing**
--NumPy
--Pillow (PIL)
-**AI Integration**
--Gemini API
-____________________________________________________________________________________________________________________________________________________________________________
-Project Structure
-Pneumonia-Detection-System/
-│
-├── app.py                     # Flask application
-├── model/
-│   └── pneumonia_model.keras  # Trained EfficientNet model
-│
-├── templates/
-│   ├── index.html
-│   └── result.html
-│
-├── static/
-│   ├── css/
-│   ├── js/
-│   └── uploads/
-│
-├── dataset/
-│   ├── train/
-│   ├── validation/
-│   └── test/
-│
-├── utils/
-│   ├── preprocessing.py
-│   ├── prediction.py
-│   └── roi.py
-│
-├── requirements.txt
-└── README.md
-____________________________________________________________________________________________________________________________________________________________________________
-Dataset
-The model was trained using a chest X-ray dataset containing three classes:
--Normal
--Pneumonia
--Invalid
-The Invalid class was created by adding non-chest-X-ray images so that the system rejects incorrect inputs instead of producing misleading predictions.
-____________________________________________________________________________________________________________________________________________________________________________
-Data Preprocessing
-Before training, each image undergoes the following preprocessing steps:
--Image resizing (224 × 224 pixels)
--Image normalization
--Conversion to NumPy arrays
--Data augmentation:
-  -Rotation
-  -Zoom
-  -Horizontal flipping
-  -Brightness adjustment
-____________________________________________________________________________________________________________________________________________________________________________
-Model Architecture
-The system uses EfficientNetB3, a pretrained Convolutional Neural Network (CNN), with transfer learning.
-  -Training includes:
-  -Transfer learning
-  -Fine-tuning
-  -Dense classification layers
-  -Dropout for regularization
-  ___________________________________________________________________________________________________________________________________________________________________________
-System Workflow
-1. User uploads a chest X-ray image.
-2. Flask receives the uploaded image.
-3. The image is preprocessed.
-4. The EfficientNetB3 model predicts one of:
-    -Normal
-    -Pneumonia
-    -Invalid
-5. ROI highlighting identifies the suspected pneumonia region.
-6. The prediction is displayed on the web interface.
-7. Users can interact with the Gemini AI chatbot for general healthcare guidance.
-____________________________________________________________________________________________________________________________________________________________________________
-Invalid Image Detection
+## Overview
 
-One of the key features of this project is invalid image detection.
+**PnemoScan** is a deep learning-based healthcare application that detects pneumonia from chest X-ray images. It classifies uploaded images into **Normal**, **Pneumonia**, and **Invalid Image** categories. The system rejects non-X-ray images, highlights the suspected pneumonia region (ROI), and integrates a Gemini-powered healthcare chatbot for general guidance.
 
-Instead of attempting to classify unrelated images, the model identifies them as Invalid Image, ensuring that only chest X-rays are analyzed.
-Examples of rejected images include:
-  -QR codes
-  -Mobile phone photographs
-  -Landscape images
-  -Ultrasound scans
-  -Other non-X-ray images
-  __________________________________________________________________________________________________________________________________________________________________________
-ROI Highlighting
-After prediction, the application highlights the suspected Region of Interest (ROI) within the lungs to improve interpretability and help users understand where abnormalities may be present.
-____________________________________________________________________________________________________________________________________________________________________________
-Gemini AI Healthcare Chatbot
-The project integrates the Gemini API to provide:
-  -General information about pneumonia
-  -Symptoms
-  -Preventive measures
-  -Basic healthcare guidance
-  -Answers to user queries
+## Key Features
 
-Note: The chatbot does not perform diagnosis. All image predictions are generated by the trained deep learning model.
-____________________________________________________________________________________________________________________________________________________________________________
-Installation
--Clone the repository:
-git clone https://github.com/your-username/Pneumonia-Detection-System.git
-cd Pneumonia-Detection-System
--Install dependencies:
+- Real-time pneumonia detection
+- Three-class classification (Normal, Pneumonia, Invalid)
+- Invalid image detection
+- ROI highlighting
+- Flask web application
+- Gemini AI chatbot
+- User-friendly interface
+
+## Technologies Used
+
+- Python
+- TensorFlow
+- Keras
+- EfficientNetB3
+- Flask
+- HTML
+- CSS
+- JavaScript
+- NumPy
+- Pillow (PIL)
+- Gemini API
+
+## Dataset
+
+- Normal
+- Pneumonia
+- Invalid
+
+## Data Preprocessing
+
+- Resize images (224×224)
+- Normalize pixel values
+- Convert to NumPy arrays
+- Data augmentation (rotation, zoom, flip, brightness)
+
+## Model
+
+EfficientNetB3 with Transfer Learning and Fine-Tuning.
+
+## Workflow
+
+1. Upload chest X-ray.
+2. Flask receives the image.
+3. Image preprocessing.
+4. EfficientNetB3 predicts the class.
+5. Display prediction.
+6. Highlight ROI.
+7. Gemini chatbot provides healthcare guidance.
+
+## Installation
+
+```bash
+git clone https://github.com/your-username/PnemoScan.git
+cd PnemoScan
 pip install -r requirements.txt
--Run the Flask application:
 python app.py
--Open your browser:
+```
+
+Open your browser and visit:
+
+```text
 http://127.0.0.1:5000
-____________________________________________________________________________________________________________________________________________________________________________
-Future Enhancements
--Support detection of multiple lung diseases.
--Improve model accuracy using larger datasets.
--Deploy the application to a cloud platform.
--Develop Android and iOS applications.
--Enhance explainability using advanced visualization techniques.
-____________________________________________________________________________________________________________________________________________________________________________
-Author
-Sahithi Kondeti
-____________________________________________________________________________________________________________________________________________________________________________
-License
-This project is intended for educational purposes. It should not be used as a substitute for professional medical diagnosis.
+```
+
+## Future Enhancements
+
+- Multi-disease detection
+- Cloud deployment
+- Mobile application
+- Hospital integration
+
+## Author
+
+**Sahithi Kondeti**
+
+## License
+
+This project is intended for educational and research purposes only.
